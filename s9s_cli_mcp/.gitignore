@@ -1,0 +1,14 @@
+# Node
+node_modules/
+dist/
+*.log
+npm-debug.log*
+yarn-error.log*
+.pnpm-store/
+.cache/
+.DS_Store
+.env
+.env.local
+
+# VS Code
+.vscode/
