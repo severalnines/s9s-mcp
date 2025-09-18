@@ -1,0 +1,16 @@
+{
+  "servers": {
+    "s9s-cli-mcp": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["dist/index.js"],
+      "cwd": "s9s_cli_mcp",
+      "env": {
+        "CC_HOST": "10.162.17.193",
+        "CC_USER": "cmon",
+        "CC_PASS": "cmon",
+        "CC_PORT": "9501"
+      }
+    }
+  }
+}

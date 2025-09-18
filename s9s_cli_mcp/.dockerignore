@@ -1,0 +1,15 @@
+node_modules
+npm-debug.log
+.npm
+.env
+.git
+.gitignore
+README.md
+.nyc_output
+coverage
+.nyc_output
+*.md
+scripts/
+src/
+tsconfig.json
+.env.backup

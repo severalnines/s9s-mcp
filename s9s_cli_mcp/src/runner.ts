@@ -39,28 +39,39 @@ export const s9sBin = () => process.env.S9S_BIN || "s9s";
 export async function runS9sRaw(cmdArgs: string[], timeoutSeconds?: number): Promise<ExecResult> {
   const timeout = (timeoutSeconds ?? DEFAULT_TIMEOUT_MS / 1000) * 1000;
   
-  // Build connection args from environment if available
-  const connectionArgs: string[] = [];
-  const env = getS9sEnv();
+  // Commands that don't accept connection arguments
+  const standaloneCommands = ["--version", "--help"];
+  const isStandaloneCommand = cmdArgs.length > 0 && standaloneCommands.includes(cmdArgs[0]);
   
-  if (env.CC_HOST) {
-    connectionArgs.push(`--controller=${env.CC_HOST}`);
-  }
-  if (env.CC_PORT) {
-    connectionArgs.push(`--controller-port=${env.CC_PORT}`);
-  }
-  if (env.CC_USER) {
-    connectionArgs.push(`--cmon-user=${env.CC_USER}`);
-  }
-  if (env.CC_PASS) {
-    connectionArgs.push(`--password=${env.CC_PASS}`);
-  }
-  if (env.CC_KEYFILE) {
-    connectionArgs.push(`--private-key-file=${env.CC_KEYFILE}`);
-  }
+  let finalArgs: string[];
   
-  // Combine: connection args + user args + --rpc-tls
-  const finalArgs = [...connectionArgs, ...cmdArgs, "--rpc-tls"];
+  if (isStandaloneCommand) {
+    // For standalone commands, use only the provided arguments
+    finalArgs = [...cmdArgs];
+  } else {
+    // Build connection args from environment if available
+    const connectionArgs: string[] = [];
+    const env = getS9sEnv();
+    
+    if (env.CC_HOST) {
+      connectionArgs.push(`--controller=${env.CC_HOST}`);
+    }
+    if (env.CC_PORT) {
+      connectionArgs.push(`--controller-port=${env.CC_PORT}`);
+    }
+    if (env.CC_USER) {
+      connectionArgs.push(`--cmon-user=${env.CC_USER}`);
+    }
+    if (env.CC_PASS) {
+      connectionArgs.push(`--password=${env.CC_PASS}`);
+    }
+    if (env.CC_KEYFILE) {
+      connectionArgs.push(`--private-key-file=${env.CC_KEYFILE}`);
+    }
+    
+    // Combine: connection args + user args + --rpc-tls
+    finalArgs = [...connectionArgs, ...cmdArgs, "--rpc-tls"];
+  }
   
   try {
     const subprocess = execa(s9sBin(), finalArgs, {

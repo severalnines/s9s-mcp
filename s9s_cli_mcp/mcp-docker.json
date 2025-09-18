@@ -1,0 +1,30 @@
+{
+  "mcpServers": {
+    "s9s-cli-docker": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm",
+        "-i",
+        "--env-file",
+        "/absolute/path/to/your/s9s_cli_mcp/.env",
+        "s9s-cli-mcp:latest"
+      ],
+      "description": "s9s CLI MCP server running in Docker container"
+    },
+    "s9s-cli-docker-inline": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm", 
+        "-i",
+        "-e", "CC_HOST=your.clustercontrol.host",
+        "-e", "CC_PORT=9501", 
+        "-e", "CC_USER=your_username",
+        "-e", "CC_PASS=your_password",
+        "s9s-cli-mcp:ubuntu"
+      ],
+      "description": "s9s CLI MCP server with inline environment variables"
+    }
+  }
+}

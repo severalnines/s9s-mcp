@@ -1,0 +1,46 @@
+# Alternative Dockerfile that copies s9s from host system
+# Use this if you already have s9s installed on your host
+
+FROM node:20-bullseye-slim
+
+# Install required dependencies
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends bash ca-certificates \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
+COPY dist/ ./dist/
+COPY .env.example ./.env.example
+
+# Copy s9s binary from host (requires s9s to be installed on host)
+# You can copy this manually: docker cp $(which s9s) container:/usr/local/bin/s9s
+# Or uncomment the line below if you have s9s in your build context
+# COPY s9s /usr/local/bin/s9s
+# RUN chmod +x /usr/local/bin/s9s
+
+# Create non-root user
+RUN groupadd -g 1001 s9s && \
+    useradd -r -u 1001 -g s9s s9s
+
+# Change ownership of the app directory
+RUN chown -R s9s:s9s /app
+
+# Switch to non-root user
+USER s9s
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD node -e "console.log('MCP server is healthy')"
+
+# Start the MCP server
+CMD ["node", "dist/index.js"]

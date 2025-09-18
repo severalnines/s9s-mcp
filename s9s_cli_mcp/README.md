@@ -6,6 +6,7 @@ Model Context Protocol (MCP) server that wraps the Severalnines ClusterControl `
 
 - Requirements: Node.js >= 18, `s9s` CLI installed and accessible in PATH or via `S9S_BIN`.
 - Install dependencies, configure environment, then run the server.
+- **Alternative**: Use Docker for containerized deployment (see [DOCKER.md](DOCKER.md))
 
 ### Install
 
@@ -38,6 +39,23 @@ npm start
 ```
 
 It will wait for MCP JSON-RPC over stdio.
+
+## Docker Deployment
+
+For containerized deployment, see [DOCKER.md](DOCKER.md) for complete instructions.
+
+Quick start with Docker:
+
+```bash
+# Build the image
+./build-docker.sh
+
+# Configure environment
+cp .env.example .env
+# Edit .env with your ClusterControl settings
+
+# Use with MCP client (see mcp-docker.json example)
+```
 
 ## Exposed tools
 

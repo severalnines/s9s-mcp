@@ -117,6 +117,60 @@ server.registerTool(
 );
 
 server.registerTool(
+  "node_list",
+  {
+    title: "List nodes",
+    description: "Run `s9s node --list --print-json` with optional flags",
+    inputSchema: {
+      flags: z.array(z.string()).optional(),
+    },
+  },
+  async ({ flags }: { flags?: string[] }) => {
+    const args = ["node", "--list", "--print-json", ...(flags ?? [])];
+    const result = await runS9sRaw(args);
+    if (result.exitCode !== 0) {
+      return {
+        content: [{ type: "text", text: result.stderr || result.stdout }],
+        isError: true,
+      };
+    }
+    const parsed = extractJson(result.stdout || result.stderr || "");
+    const text = parsed ? JSON.stringify(parsed, null, 2) : (result.stdout || result.stderr || "");
+    return {
+      content: [{ type: "text", text }],
+      isError: false,
+    };
+  }
+);
+
+server.registerTool(
+  "backup_list",
+  {
+    title: "List backups",
+    description: "Run `s9s backup --list --print-json` with optional flags",
+    inputSchema: {
+      flags: z.array(z.string()).optional(),
+    },
+  },
+  async ({ flags }: { flags?: string[] }) => {
+    const args = ["backup", "--list", "--print-json", ...(flags ?? [])];
+    const result = await runS9sRaw(args);
+    if (result.exitCode !== 0) {
+      return {
+        content: [{ type: "text", text: result.stderr || result.stdout }],
+        isError: true,
+      };
+    }
+    const parsed = extractJson(result.stdout || result.stderr || "");
+    const text = parsed ? JSON.stringify(parsed, null, 2) : (result.stdout || result.stderr || "");
+    return {
+      content: [{ type: "text", text }],
+      isError: false,
+    };
+  }
+);
+
+server.registerTool(
   "job_log",
   {
     title: "Get job log",
@@ -146,8 +200,8 @@ server.registerTool(
     inputSchema: {
       subcommand: z
         .string()
-        .refine((v: string) => ["cluster", "job", "task", "server"].includes(v), {
-          message: "subcommand must be one of: cluster, job, task, server",
+        .refine((v: string) => ["cluster", "job", "task", "server", "node", "backup"].includes(v), {
+          message: "subcommand must be one of: cluster, job, task, server, node, backup",
         }),
       args: z.array(z.string()).optional(),
       timeoutSeconds: z.number().int().positive().optional(),
