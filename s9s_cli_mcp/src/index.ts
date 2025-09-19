@@ -193,6 +193,39 @@ server.registerTool(
 );
 
 server.registerTool(
+  "backup_list_by_cluster",
+  {
+    title: "List backups by cluster",
+    description: "Run `s9s backup --list --print-json` with optional cluster-id filter and additional flags",
+    inputSchema: {
+      clusterId: z.union([z.string(), z.number()]).transform(String).optional(),
+      flags: z.array(z.string()).optional(),
+    },
+  },
+  async ({ clusterId, flags }: { clusterId?: string; flags?: string[] }) => {
+    const args = ["backup", "--list", "--print-json"];
+    if (clusterId) {
+      args.push(`--cluster-id=${clusterId}`);
+    }
+    args.push(...(flags ?? []));
+    
+    const result = await runS9sRaw(args);
+    if (result.exitCode !== 0) {
+      return {
+        content: [{ type: "text", text: result.stderr || result.stdout }],
+        isError: true,
+      };
+    }
+    const parsed = extractJson(result.stdout || result.stderr || "");
+    const text = parsed ? JSON.stringify(parsed, null, 2) : (result.stdout || result.stderr || "");
+    return {
+      content: [{ type: "text", text }],
+      isError: false,
+    };
+  }
+);
+
+server.registerTool(
   "job_log",
   {
     title: "Get job log",
@@ -213,39 +246,39 @@ server.registerTool(
   }
 );
 
-server.registerTool(
-  "s9s_exec",
-  {
-    title: "Execute s9s subcommand",
-    description:
-      "Execute a whitelisted s9s subcommand with args. Returns stdout/stderr/exitCode",
-    inputSchema: {
-      subcommand: z
-        .string()
-        .refine((v: string) => ["cluster", "job", "task", "server", "node", "backup"].includes(v), {
-          message: "subcommand must be one of: cluster, job, task, server, node, backup",
-        }),
-      args: z.array(z.string()).optional(),
-      timeoutSeconds: z.number().int().positive().optional(),
-    },
-  },
-  async ({
-    subcommand,
-    args,
-    timeoutSeconds,
-  }: {
-    subcommand: string;
-    args?: string[];
-    timeoutSeconds?: number;
-  }) => {
-    const result = await runS9s(subcommand, args ?? [], timeoutSeconds);
-    const payload = JSON.stringify(result, null, 2);
-    return {
-      content: [{ type: "text", text: payload }],
-      isError: result.exitCode !== 0,
-    };
-  }
-);
+// server.registerTool(
+//   "s9s_exec",
+//   {
+//     title: "Execute s9s subcommand",
+//     description:
+//       "Execute a whitelisted s9s subcommand with args. Returns stdout/stderr/exitCode",
+//     inputSchema: {
+//       subcommand: z
+//         .string()
+//         .refine((v: string) => ["cluster", "job", "task", "server", "node", "backup"].includes(v), {
+//           message: "subcommand must be one of: cluster, job, task, server, node, backup",
+//         }),
+//       args: z.array(z.string()).optional(),
+//       timeoutSeconds: z.number().int().positive().optional(),
+//     },
+//   },
+//   async ({
+//     subcommand,
+//     args,
+//     timeoutSeconds,
+//   }: {
+//     subcommand: string;
+//     args?: string[];
+//     timeoutSeconds?: number;
+//   }) => {
+//     const result = await runS9s(subcommand, args ?? [], timeoutSeconds);
+//     const payload = JSON.stringify(result, null, 2);
+//     return {
+//       content: [{ type: "text", text: payload }],
+//       isError: result.exitCode !== 0,
+//     };
+//   }
+// );
 
 async function main() {
   const transport = new StdioServerTransport();
