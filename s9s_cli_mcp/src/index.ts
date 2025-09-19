@@ -171,6 +171,28 @@ server.registerTool(
 );
 
 server.registerTool(
+  "cluster_list_config",
+  {
+    title: "List cluster configuration",
+    description: "Run `s9s cluster --cluster-id=X --list-config` to get cluster configuration",
+    inputSchema: {
+      clusterId: z.union([z.string(), z.number()]).transform(String),
+      flags: z.array(z.string()).optional(),
+    },
+  },
+  async ({ clusterId, flags }: { clusterId: string; flags?: string[] }) => {
+    const args = ["cluster", `--cluster-id=${clusterId}`, "--list-config", ...(flags ?? [])];
+    const result = await runS9sRaw(args);
+    return {
+      content: [
+        { type: "text", text: result.stdout || result.stderr || "" },
+      ],
+      isError: result.exitCode !== 0,
+    };
+  }
+);
+
+server.registerTool(
   "job_log",
   {
     title: "Get job log",
