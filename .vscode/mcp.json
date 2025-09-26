@@ -1,0 +1,18 @@
+{
+  "servers": {
+    "s9s-cli-docker-inline": {
+      "command": "docker",
+      "args": [
+        "run",
+        "--rm", 
+        "-i",
+        "--network=host",
+        "-e", "CC_HOST=10.162.17.193",
+        "-e", "CC_PORT=9501", 
+        "-e", "CC_USER=cmon",
+        "-e", "CC_PASS=cmon",
+        "s9s-cli-mcp:ubuntu"
+      ]
+    }
+  }
+}

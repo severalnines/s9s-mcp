@@ -144,33 +144,6 @@ server.registerTool(
 );
 
 server.registerTool(
-  "backup_list",
-  {
-    title: "List backups",
-    description: "Run `s9s backup --list --print-json` with optional flags",
-    inputSchema: {
-      flags: z.array(z.string()).optional(),
-    },
-  },
-  async ({ flags }: { flags?: string[] }) => {
-    const args = ["backup", "--list", "--print-json", ...(flags ?? [])];
-    const result = await runS9sRaw(args);
-    if (result.exitCode !== 0) {
-      return {
-        content: [{ type: "text", text: result.stderr || result.stdout }],
-        isError: true,
-      };
-    }
-    const parsed = extractJson(result.stdout || result.stderr || "");
-    const text = parsed ? JSON.stringify(parsed, null, 2) : (result.stdout || result.stderr || "");
-    return {
-      content: [{ type: "text", text }],
-      isError: false,
-    };
-  }
-);
-
-server.registerTool(
   "cluster_list_config",
   {
     title: "List cluster configuration",
@@ -193,7 +166,7 @@ server.registerTool(
 );
 
 server.registerTool(
-  "backup_list_by_cluster",
+  "backup_list",
   {
     title: "List backups by cluster",
     description: "Run `s9s backup --list --print-json` with optional cluster-id filter and additional flags",

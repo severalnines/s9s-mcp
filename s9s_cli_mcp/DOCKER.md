@@ -19,10 +19,11 @@ npm run build
 ```
 
 ### 2. Choose your Dockerfile approach
+Don't mind the --platform linux/amd64 flag if you're on amd64, it's just to ensure compatibility on ARM machines.
 
 #### Option A: Standard Dockerfile (downloads s9s during build)
 ```bash
-docker build -t s9s-cli-mcp:latest .
+docker build -t s9s-cli-mcp:latest --platform linux/amd64 .
 ```
 
 #### Option B: Alternative Dockerfile (copy s9s from host)
@@ -33,7 +34,7 @@ If you have s9s already installed on your host system:
 cp $(which s9s) ./s9s
 
 # Build with alternative Dockerfile
-docker build -f Dockerfile.alternative -t s9s-cli-mcp:latest .
+docker build -f Dockerfile.alternative -t s9s-cli-mcp:latest --platform linux/amd64 .
 ```
 
 #### Option C: Manual s9s installation
@@ -41,7 +42,7 @@ If automatic installation fails, you can install s9s manually:
 
 ```bash
 # Build base image without s9s
-docker build --target base -t s9s-cli-mcp:base .
+docker build --target base -t s9s-cli-mcp:base --platform linux/amd64 .
 
 # Run container and install s9s manually
 docker run -it s9s-cli-mcp:base sh

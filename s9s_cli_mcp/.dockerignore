@@ -9,7 +9,4 @@ README.md
 coverage
 .nyc_output
 *.md
-scripts/
-src/
-tsconfig.json
 .env.backup

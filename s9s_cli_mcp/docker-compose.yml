@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  s9s-mcp:
+    build: .
+    container_name: s9s-mcp-server
+    env_file:
+      - .env
+    restart: unless-stopped
+    stdin_open: true  # Keep stdin open for MCP communication
+    tty: true        # Allocate a pseudo-TTY
+    volumes:
+      # Optional: mount s9s config if needed
+      # - ~/.s9s:/home/s9s/.s9s:ro
+      # Optional: mount additional config files
+      # - ./config:/app/config:ro
+    networks:
+      - s9s-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "console.log('MCP server is healthy')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  s9s-network:
+    driver: bridge
