@@ -166,6 +166,27 @@ server.registerTool(
 );
 
 server.registerTool(
+  "account_list",
+  {
+    title: "List accounts",
+    description: "Run `s9s account --list --cluster-id=ID --long` for the provided cluster",
+    inputSchema: {
+      clusterId: z.string(),
+    },
+  },
+  async ({ clusterId }: { clusterId: string }) => {
+    const args = ["account", "--list", `--cluster-id=${clusterId}`, "--long"];
+    const result = await runS9sRaw(args);
+    return {
+      content: [
+        { type: "text", text: result.stdout || result.stderr || "" },
+      ],
+      isError: result.exitCode !== 0,
+    };
+  }
+);
+
+server.registerTool(
   "backup_list",
   {
     title: "List backups by cluster",
@@ -252,6 +273,8 @@ server.registerTool(
 //     };
 //   }
 // );
+
+
 
 async function main() {
   const transport = new StdioServerTransport();

@@ -259,6 +259,7 @@ The containerized server provides the same MCP tools as the local version:
 
 - `s9s_version` - Get s9s version information
 - `s9s_help` - Get s9s help information  
+- `account_list` - List ClusterControl accounts on cluster
 - `cluster_list` - List ClusterControl clusters
 - `job_list` - List ClusterControl jobs
 - `job_log` - Get job logs by ID
