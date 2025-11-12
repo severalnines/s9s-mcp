@@ -94,6 +94,7 @@ cp .env.example .env
 - `backup_list`: runs `s9s backup --list --print-json` with optional cluster filtering and flags:
   - params: `{ clusterId?: string|number; flags?: string[] }`
   - Use `clusterId` to filter backups for specific cluster, omit to list all backups.
+- `schedules_backups_list`: runs `s9s backup --list-schedules --long --print-json` with no parameters.
 - `cluster_list_config`: runs `s9s cluster --cluster-id=X --list-config` to get cluster configuration:
   - params: `{ clusterId: string|number; flags?: string[] }`
 - `job_log`: runs `s9s job --log --job-id=X` to get job logs:

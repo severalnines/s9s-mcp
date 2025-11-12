@@ -247,6 +247,31 @@ server.registerTool(
 );
 
 server.registerTool(
+  "schedules_backups_list",
+  {
+    title: "List backup schedules",
+    description: "Run `s9s backup --list-schedules --long --print-json` and format the JSON output",
+    inputSchema: {},
+  },
+  async () => {
+    const args = ["backup", "--list-schedules", "--long", "--print-json"];
+    const result = await runS9sRaw(args);
+    if (result.exitCode !== 0) {
+      return {
+        content: [{ type: "text", text: result.stderr || result.stdout }],
+        isError: true,
+      };
+    }
+    const parsed = extractJson(result.stdout || result.stderr || "");
+    const text = parsed ? JSON.stringify(parsed, null, 2) : (result.stdout || result.stderr || "");
+    return {
+      content: [{ type: "text", text }],
+      isError: false,
+    };
+  }
+);
+
+server.registerTool(
   "job_log",
   {
     title: "Get job log",
