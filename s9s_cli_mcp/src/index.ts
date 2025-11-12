@@ -166,7 +166,7 @@ server.registerTool(
 );
 
 server.registerTool(
-  "account_list",
+  "accounts_list",
   {
     title: "List accounts",
     description: "Run `s9s account --list --cluster-id=ID --long` for the provided cluster",
@@ -182,6 +182,33 @@ server.registerTool(
         { type: "text", text: result.stdout || result.stderr || "" },
       ],
       isError: result.exitCode !== 0,
+    };
+  }
+);
+
+server.registerTool(
+  "alarms_list",
+  {
+    title: "List alarms",
+    description: "Run `s9s alarms --list --cluster-id=ID --long --print-json` for the provided cluster",
+    inputSchema: {
+      clusterId: z.union([z.string(), z.number()]).transform(String),
+    },
+  },
+  async ({ clusterId }: { clusterId: string }) => {
+    const args = ["alarms", "--list", `--cluster-id=${clusterId}`, "--long", "--print-json"];
+    const result = await runS9sRaw(args);
+      if (result.exitCode !== 0) {
+      return {
+        content: [{ type: "text", text: result.stderr || result.stdout }],
+        isError: true,
+        };
+    }
+    const parsed = extractJson(result.stdout || result.stderr || "");
+    const text = parsed ? JSON.stringify(parsed, null, 2) : (result.stdout || result.stderr || "");
+    return {
+      content: [{ type: "text", text }],
+      isError: false,
     };
   }
 );

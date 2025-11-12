@@ -89,6 +89,8 @@ cp .env.example .env
 - `node_list`: runs `s9s node --list --print-json` with optional flags: `{ flags?: string[] }`.
 - `accounts_list`: runs `s9s account --list --cluster-id=ID --long` for the provided cluster:
   - params: `{ clusterId: string }`
+- `alarms_list`: runs `s9s alarms --list --cluster-id=ID --long --print-json` for the provided cluster:
+  - params: `{ clusterId: string|number; flags?: string[] }`
 - `backup_list`: runs `s9s backup --list --print-json` with optional cluster filtering and flags:
   - params: `{ clusterId?: string|number; flags?: string[] }`
   - Use `clusterId` to filter backups for specific cluster, omit to list all backups.
