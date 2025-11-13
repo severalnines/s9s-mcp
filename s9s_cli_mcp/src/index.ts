@@ -166,6 +166,54 @@ server.registerTool(
 );
 
 server.registerTool(
+  "accounts_list",
+  {
+    title: "List accounts",
+    description: "Run `s9s account --list --cluster-id=ID --long` for the provided cluster",
+    inputSchema: {
+      clusterId: z.string(),
+    },
+  },
+  async ({ clusterId }: { clusterId: string }) => {
+    const args = ["account", "--list", `--cluster-id=${clusterId}`, "--long"];
+    const result = await runS9sRaw(args);
+    return {
+      content: [
+        { type: "text", text: result.stdout || result.stderr || "" },
+      ],
+      isError: result.exitCode !== 0,
+    };
+  }
+);
+
+server.registerTool(
+  "alarms_list",
+  {
+    title: "List alarms",
+    description: "Run `s9s alarms --list --cluster-id=ID --long --print-json` for the provided cluster",
+    inputSchema: {
+      clusterId: z.union([z.string(), z.number()]).transform(String),
+    },
+  },
+  async ({ clusterId }: { clusterId: string }) => {
+    const args = ["alarms", "--list", `--cluster-id=${clusterId}`, "--long", "--print-json"];
+    const result = await runS9sRaw(args);
+      if (result.exitCode !== 0) {
+      return {
+        content: [{ type: "text", text: result.stderr || result.stdout }],
+        isError: true,
+        };
+    }
+    const parsed = extractJson(result.stdout || result.stderr || "");
+    const text = parsed ? JSON.stringify(parsed, null, 2) : (result.stdout || result.stderr || "");
+    return {
+      content: [{ type: "text", text }],
+      isError: false,
+    };
+  }
+);
+
+server.registerTool(
   "backup_list",
   {
     title: "List backups by cluster",
@@ -182,6 +230,31 @@ server.registerTool(
     }
     args.push(...(flags ?? []));
     
+    const result = await runS9sRaw(args);
+    if (result.exitCode !== 0) {
+      return {
+        content: [{ type: "text", text: result.stderr || result.stdout }],
+        isError: true,
+      };
+    }
+    const parsed = extractJson(result.stdout || result.stderr || "");
+    const text = parsed ? JSON.stringify(parsed, null, 2) : (result.stdout || result.stderr || "");
+    return {
+      content: [{ type: "text", text }],
+      isError: false,
+    };
+  }
+);
+
+server.registerTool(
+  "schedules_backups_list",
+  {
+    title: "List backup schedules",
+    description: "Run `s9s backup --list-schedules --long --print-json` and format the JSON output",
+    inputSchema: {},
+  },
+  async () => {
+    const args = ["backup", "--list-schedules", "--long", "--print-json"];
     const result = await runS9sRaw(args);
     if (result.exitCode !== 0) {
       return {
@@ -252,6 +325,8 @@ server.registerTool(
 //     };
 //   }
 // );
+
+
 
 async function main() {
   const transport = new StdioServerTransport();
