@@ -11,7 +11,7 @@
         "-e", "CC_PORT=9501", 
         "-e", "CC_USER=cmon",
         "-e", "CC_PASS=cmon",
-        "s9s-cli-mcp:ubuntu"
+        "s9s-cli-mcp:latest"
       ]
     }
   }

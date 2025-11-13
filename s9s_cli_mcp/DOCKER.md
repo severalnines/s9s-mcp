@@ -262,6 +262,6 @@ The containerized server provides the same MCP tools as the local version:
 - `cluster_list` - List ClusterControl clusters
 - `job_list` - List ClusterControl jobs
 - `job_log` - Get job logs by ID
-- `s9s_exec` - Execute s9s subcommands
+<!--- `s9s_exec` - Execute s9s subcommands -->
 
 All tools respect the environment configuration and connection parameters.

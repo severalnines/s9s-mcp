@@ -204,7 +204,7 @@ server.registerTool(
     title: "Get job log",
     description: "Get logs for a specific job using job ID",
     inputSchema: {
-      jobId: z.union([z.string(), z.number()]).transform(String),
+      jobId: z.string(),
     },
   },
   async ({ jobId }: { jobId: string }) => {

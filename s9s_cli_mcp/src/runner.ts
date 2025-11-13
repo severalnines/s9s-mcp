@@ -53,11 +53,11 @@ export async function runS9sRaw(cmdArgs: string[], timeoutSeconds?: number): Pro
     const connectionArgs: string[] = [];
     const env = getS9sEnv();
     
-    if (env.CC_HOST) {
-      connectionArgs.push(`--controller=${env.CC_HOST}`);
+    if (env.CC_HOST && env.CC_PORT) {
+      connectionArgs.push(`--controller=${env.CC_HOST}:${env.CC_PORT}`);
     }
-    if (env.CC_PORT) {
-      connectionArgs.push(`--controller-port=${env.CC_PORT}`);
+    if (env.CC_HOST) {
+      connectionArgs.push(`--controller=${env.CC_HOST}:9501`);
     }
     if (env.CC_USER) {
       connectionArgs.push(`--cmon-user=${env.CC_USER}`);
