@@ -36,7 +36,7 @@ server.registerTool(
   "s9s_version",
   {
     title: "s9s version",
-    description: "Return `s9s --version` output",
+    description: "Return `s9s --version` output to get version of s9s CLI",
     inputSchema: {},
   },
   async () => {
@@ -54,7 +54,7 @@ server.registerTool(
   "s9s_help",
   {
     title: "s9s help",
-    description: "Return `s9s --help` output",
+    description: "Return `s9s --help` output to get help information about s9s CLI",
     inputSchema: {},
   },
   async () => {
@@ -72,7 +72,7 @@ server.registerTool(
   "cluster_list",
   {
     title: "List clusters",
-    description: "Run `s9s cluster --list` with optional flags",
+    description: "Run `s9s cluster --list` with optional flags to list clusters and information about them like ID, status and their hosts",
     inputSchema: {
       flags: z.array(z.string()).optional(),
     },
@@ -99,13 +99,18 @@ server.registerTool(
   "job_list",
   {
     title: "List jobs",
-    description: "Run `s9s job --list` with optional flags",
+    description: "Run `s9s job --list` to list jobs and their statuses with optional flags to filter or format the output",
     inputSchema: {
+      clusterId: z.union([z.string(), z.number()]).transform(String).optional(),
       flags: z.array(z.string()).optional(),
     },
   },
-  async ({ flags }: { flags?: string[] }) => {
-    const args = ["job", "--list", ...(flags ?? [])];
+  async ({ clusterId, flags }: { clusterId?: string; flags?: string[] }) => {
+    const args = ["job", "--list"];
+    if (clusterId) {
+      args.push(`--cluster-id=${clusterId}`);
+    }
+    args.push(...(flags ?? []));
     const result = await runS9sRaw(args);
     return {
       content: [
@@ -120,13 +125,18 @@ server.registerTool(
   "node_list",
   {
     title: "List nodes",
-    description: "Run `s9s node --list --print-json` with optional flags",
+    description: "Run `s9s node --list --print-json` with optional flags to list nodes and their details like ID, status, IP/hostname and roles",
     inputSchema: {
+      clusterId: z.union([z.string(), z.number()]).transform(String).optional(),
       flags: z.array(z.string()).optional(),
     },
   },
-  async ({ flags }: { flags?: string[] }) => {
-    const args = ["node", "--list", "--print-json", ...(flags ?? [])];
+  async ({ clusterId, flags }: { clusterId?: string; flags?: string[] }) => {
+    const args = ["node", "--list", "--print-json"];
+    if (clusterId) {
+      args.push(`--cluster-id=${clusterId}`);
+    }
+    args.push(...(flags ?? []));
     const result = await runS9sRaw(args);
     if (result.exitCode !== 0) {
       return {
@@ -169,9 +179,9 @@ server.registerTool(
   "accounts_list",
   {
     title: "List accounts",
-    description: "Run `s9s account --list --cluster-id=ID --long` for the provided cluster",
+    description: "Run `s9s account --list --cluster-id=ID --long` for the provided cluster to list user accounts and their details",
     inputSchema: {
-      clusterId: z.string(),
+      clusterId: z.union([z.string(), z.number()]).transform(String),
     },
   },
   async ({ clusterId }: { clusterId: string }) => {
@@ -190,7 +200,7 @@ server.registerTool(
   "alarms_list",
   {
     title: "List alarms",
-    description: "Run `s9s alarms --list --cluster-id=ID --long --print-json` for the provided cluster",
+    description: "Run `s9s alarms --list --cluster-id=ID --long --print-json` for the provided cluster to list alarms and their details",
     inputSchema: {
       clusterId: z.union([z.string(), z.number()]).transform(String),
     },
@@ -217,7 +227,7 @@ server.registerTool(
   "backup_list",
   {
     title: "List backups by cluster",
-    description: "Run `s9s backup --list --print-json` with optional cluster-id filter and additional flags",
+    description: "Run `s9s backup --list --print-json` with optional cluster-id filter and additional flags to list backups and their details like ID, status, size, and timestamps",
     inputSchema: {
       clusterId: z.union([z.string(), z.number()]).transform(String).optional(),
       flags: z.array(z.string()).optional(),
@@ -250,7 +260,7 @@ server.registerTool(
   "schedules_backups_list",
   {
     title: "List backup schedules",
-    description: "Run `s9s backup --list-schedules --long --print-json` and format the JSON output",
+    description: "Run `s9s backup --list-schedules --long --print-json` to list backup schedules and their details like schedule ID, frequency, and retention policy",
     inputSchema: {},
   },
   async () => {
@@ -275,7 +285,7 @@ server.registerTool(
   "job_log",
   {
     title: "Get job log",
-    description: "Get logs for a specific job using job ID",
+    description: "Get logs for a specific job using job ID to retrieve detailed execution logs",
     inputSchema: {
       jobId: z.string(),
     },
@@ -288,6 +298,34 @@ server.registerTool(
         { type: "text", text: result.stdout || result.stderr || "" },
       ],
       isError: result.exitCode !== 0,
+    };
+  }
+);
+
+server.registerTool(
+  "database_list",
+  {
+    title: "List databases",
+    description: "Run `s9s cluster --cluster-id=ID --list-databases --print-json` to list databases for a cluster and their details like name, owner, creation date",
+    inputSchema: {
+      clusterId: z.union([z.string(), z.number()]).transform(String),
+      flags: z.array(z.string()).optional(),
+    },
+  },
+  async ({ clusterId, flags }: { clusterId: string; flags?: string[] }) => {
+    const args = [`cluster`, `--cluster-id=${clusterId}`, "--list-databases", "--print-json", ...(flags ?? [])];
+    const result = await runS9sRaw(args);
+    if (result.exitCode !== 0) {
+      return {
+        content: [{ type: "text", text: result.stderr || result.stdout }],
+        isError: true,
+      };
+    }
+    const parsed = extractJson(result.stdout || result.stderr || "");
+    const text = parsed ? JSON.stringify(parsed, null, 2) : (result.stdout || result.stderr || "");
+    return {
+      content: [{ type: "text", text }],
+      isError: false,
     };
   }
 );
